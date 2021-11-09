@@ -32,7 +32,7 @@ const config = {
   logo: logo, // change the logo here
   projectName: "McArbi NFT",
   mainColor: "#1d86cc",
-  launch: "2021-11-09 16:00 ", // end date of the yeet
+  launch: 1636498808, // end date of the yeet (unix epoch)
   goal: 10, // goal of the yeet
   gnosisSafe: "0xc4AbE253068AFD6B71F0a01b19256eeeeFcF9551",
   // nativeToken: true,  // not used
@@ -435,7 +435,7 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 }
 
 function calculateTimeLeft() {
-  const launch = config.launch;
+  const launch = config.launch * 1000;
   const difference = +new Date(launch) - +new Date();
   let timeLeft = {};
 
