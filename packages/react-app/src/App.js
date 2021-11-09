@@ -39,7 +39,7 @@ const config = {
   token: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // token yeeting in WETH
   tokenSymbol: "aΞ", // symbol to dsiplay
   website: "https://hackmd.io/@Dekan/By7a16Mwt", // information site
-  showLeaderboard: false, // show the leaderboad or not
+  showLeaderboard: true, // show the leaderboad or not
 };
 
 // const addresses = {
@@ -132,28 +132,26 @@ function SafeList({ provider }) {
             ))
         );
         const leaderBoardSorted = Object.keys(txList)
-        .map((key) => ({ from: key, amount: txList[key] }))
-        .sort((a, b) => {
-          return parseInt(b.amount.sub(a.amount).toString());
+          .map((key) => ({ from: key, amount: txList[key] }))
+          .sort((a, b) => {
+            return parseInt(b.amount.sub(a.amount).toString());
           })
-        .map((tx) => ({
-          from: tx.from,
-          amount: utils.formatEther(tx.amount.toString()),
-        }))
+          .map((tx) => ({
+            from: tx.from,
+            amount: utils.formatEther(tx.amount.toString()),
+          }));
         const promises = [];
-        leaderBoardSorted.forEach((x)=>{
-          promises.push(provider.lookupAddress(x.from))
-        })
+        leaderBoardSorted.forEach((x) => {
+          promises.push(provider.lookupAddress(x.from));
+        });
         const enses = await Promise.all(promises);
         // console.log('enses', enses);
 
-        leaderBoardSorted.forEach((x, idx)=>{
-            x.fromEns = enses[idx];
-        })
+        leaderBoardSorted.forEach((x, idx) => {
+          x.fromEns = enses[idx];
+        });
 
-        setLeaderboard(
-          leaderBoardSorted
-        );
+        setLeaderboard(leaderBoardSorted);
 
         setSafeTxInfo(ethWethIn.filter((tx) => tx.from === account));
         // console.log("ethWethIn", ethWethIn);
@@ -347,21 +345,21 @@ function SafeList({ provider }) {
                             <Box ml={10}>
                               {contributor.fromEns ? (
                                 <Text fontSize={"lg"} color={config.mainColor}>
-                                {contributor.fromEns}
-                                <CopyToast toCopy={contributor.from} />
-                              </Text>
-                              ) :
-                              <Text fontSize={"lg"} color={config.mainColor}>
-                                {contributor.from.substring(0, 6) +
-                                  "..." +
-                                  contributor.from.substring(38)}
-                                <CopyToast toCopy={contributor.from} />
-                              </Text>}
-                              
+                                  {contributor.fromEns}
+                                  <CopyToast toCopy={contributor.from} />
+                                </Text>
+                              ) : (
+                                <Text fontSize={"lg"} color={config.mainColor}>
+                                  {contributor.from.substring(0, 6) +
+                                    "..." +
+                                    contributor.from.substring(38)}
+                                  <CopyToast toCopy={contributor.from} />
+                                </Text>
+                              )}
                             </Box>
                             <Box m={10}>
                               <Text fontSize={"lg"} color={"#E5E5E5"}>
-                                {contributor.amount}
+                                {parseFloat(contributor.amount).toFixed(4)}
                               </Text>
                             </Box>
                           </Flex>
