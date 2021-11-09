@@ -39,7 +39,7 @@ const config = {
   token: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // token yeeting in WETH
   tokenSymbol: "aΞ", // symbol to dsiplay
   website: "https://hackmd.io/@Dekan/By7a16Mwt", // information site
-  showLeaderboard: true, // show the leaderboad or not
+  showLeaderboard: false, // show the leaderboad or not
 };
 
 // const addresses = {
