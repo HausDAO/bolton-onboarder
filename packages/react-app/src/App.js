@@ -142,8 +142,13 @@ function SafeList({ provider }) {
           }));
         const promises = [];
         leaderBoardSorted.forEach((x) => {
-          promises.push(provider.lookupAddress(x.from));
+          if (config.network === "mainnet") {
+            promises.push(provider.lookupAddress(x.from));
+          } else {
+            promises.push(null);
+          }
         });
+
         const enses = await Promise.all(promises);
         // console.log('enses', enses);
 
