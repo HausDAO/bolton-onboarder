@@ -241,14 +241,22 @@ function SafeList({ provider }) {
         <TabList ml={20} mr={20}>
           <Tab
             color={"#E5E5E5"}
-            _selected={{ color: "white", borderColor: config.mainColor, borderWidth:"thin" }}
+            _selected={{
+              color: "white",
+              borderColor: config.mainColor,
+              borderWidth: "thin",
+            }}
           >
             Your Contributions
           </Tab>
           {config.showLeaderboard && (
             <Tab
               color={"#E5E5E5"}
-              _selected={{ color: "white", bg: config.mainColor }}
+              _selected={{
+                color: "white",
+                borderColor: config.mainColor,
+                borderWidth: "thin",
+              }}
             >
               Leaderboard
             </Tab>
