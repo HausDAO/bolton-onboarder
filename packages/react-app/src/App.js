@@ -39,6 +39,7 @@ const config = {
   token: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // token yeeting in WETH
   tokenSymbol: "aΞ", // symbol to dsiplay
   website: "https://hackmd.io/@Dekan/By7a16Mwt", // information site
+  showLeaderboard: true, // show the leaderboad or not
 };
 
 // const addresses = {
@@ -76,7 +77,6 @@ function CopyToast({ toCopy }) {
 
 function SafeList({ provider }) {
   const [account, setAccount] = useState("");
-  const [toggleList] = useState(false);
   const [safeTxInfo, setSafeTxInfo] = useState(null);
   const [, setSafeTxInfoAll] = useState(null);
   const [safeBalances, setSafeBalances] = useState(null);
@@ -131,18 +131,30 @@ function SafeList({ provider }) {
               BigNumber.from(txList[tx.from] || "0")
             ))
         );
+        const leaderBoardSorted = Object.keys(txList)
+        .map((key) => ({ from: key, amount: txList[key] }))
+        .sort((a, b) => (a.amount < b.amount ? 0 : -1))
+        .map((tx) => ({
+          from: tx.from,
+          amount: utils.formatEther(tx.amount.toString()),
+        }))
+        const promises = [];
+        leaderBoardSorted.forEach((x)=>{
+          promises.push(provider.lookupAddress(x.from))
+        })
+        const enses = await Promise.all(promises);
+        // console.log('enses', enses);
+
+        leaderBoardSorted.forEach((x, idx)=>{
+            x.fromEns = enses[idx];
+        })
+
         setLeaderboard(
-          Object.keys(txList)
-            .map((key) => ({ from: key, amount: txList[key] }))
-            .sort((a, b) => (a.amount < b.amount ? 0 : -1))
-            .map((tx) => ({
-              from: tx.from,
-              amount: utils.formatEther(tx.amount.toString()),
-            }))
+          leaderBoardSorted
         );
 
         setSafeTxInfo(ethWethIn.filter((tx) => tx.from === account));
-        console.log("ethWethIn, toggleList", ethWethIn, toggleList);
+        console.log("ethWethIn", ethWethIn);
         let total = 0;
         ethWethIn
           .filter((tx) => tx.from === account)
@@ -169,7 +181,7 @@ function SafeList({ provider }) {
       }
     }
     fetchAccount();
-  }, [account, provider, setSafeTxInfo, setSafeTxInfoAll, toggleList]);
+  }, [account, provider, setSafeTxInfo, setSafeTxInfoAll]);
 
   return (
     <>
@@ -231,12 +243,14 @@ function SafeList({ provider }) {
           >
             Your Contributions
           </Tab>
-          <Tab
-            color={"#E5E5E5"}
-            _selected={{ color: "white", bg: config.mainColor }}
-          >
-            Leaderboard
-          </Tab>
+          {config.showLeaderboard && (
+            <Tab
+              color={"#E5E5E5"}
+              _selected={{ color: "white", bg: config.mainColor }}
+            >
+              Leaderboard
+            </Tab>
+          )}
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -293,52 +307,63 @@ function SafeList({ provider }) {
               </Box>
             </Flex>
           </TabPanel>
-          <TabPanel>
-            <Flex
-              border={"solid"}
-              rounded={"sm"}
-              borderColor={"#272727"}
-              borderWidth={"thin"}
-              ml={20}
-              mr={20}
-            >
-              <Box w="100%">
-                <Flex backgroundColor="#0C0C0C" flexDirection={"column"}>
-                  <Box>
-                    {leaderBoard &&
-                      leaderBoard.map((contributor, idx) => (
-                        <Flex
-                          justifyContent="space-between"
-                          w="100%"
-                          align="center"
-                          h={20}
-                          key={idx}
-                        >
-                          <Box ml={10}>
-                            <Text fontSize={"lg"} color={"#E5E5E5"}>
-                              {idx + 1 + ""}
-                            </Text>
-                          </Box>
-                          <Box ml={10}>
-                            <Text fontSize={"lg"} color={"#E5E5E5"}>
-                              {contributor.from}
-                            </Text>
-                          </Box>
-                          <Box m={10}>
-                            <Text fontSize={"lg"} color={"#E5E5E5"}>
-                              {contributor.amount}
-                            </Text>
-                          </Box>
-                        </Flex>
-                      ))}
-                  </Box>
-                </Flex>
-              </Box>
-            </Flex>
-          </TabPanel>
+          {config.showLeaderboard && (
+            <TabPanel>
+              <Flex
+                border={"solid"}
+                rounded={"sm"}
+                borderColor={"#272727"}
+                borderWidth={"thin"}
+                ml={20}
+                mr={20}
+              >
+                <Box w="100%">
+                  <Flex backgroundColor="#0C0C0C" flexDirection={"column"}>
+                    <Box>
+                      {leaderBoard &&
+                        leaderBoard.map((contributor, idx) => (
+                          <Flex
+                            justifyContent="space-between"
+                            w="100%"
+                            align="center"
+                            h={20}
+                            key={idx}
+                          >
+                            <Box ml={10}>
+                              <Text fontSize={"lg"} color={"#E5E5E5"}>
+                                {idx + 1 + ""}
+                              </Text>
+                            </Box>
+                            <Box ml={10}>
+                              {contributor.fromEns ? (
+                                <Text fontSize={"lg"} color={config.mainColor}>
+                                {contributor.fromEns}
+                                <CopyToast toCopy={contributor.from} />
+                              </Text>
+                              ) :
+                              <Text fontSize={"lg"} color={config.mainColor}>
+                                {contributor.from.substring(0, 6) +
+                                  "..." +
+                                  contributor.from.substring(38)}
+                                <CopyToast toCopy={contributor.from} />
+                              </Text>}
+                              
+                            </Box>
+                            <Box m={10}>
+                              <Text fontSize={"lg"} color={"#E5E5E5"}>
+                                {contributor.amount}
+                              </Text>
+                            </Box>
+                          </Flex>
+                        ))}
+                    </Box>
+                  </Flex>
+                </Box>
+              </Flex>
+            </TabPanel>
+          )}
         </TabPanels>
       </Tabs>
-      {/* <Button onClick={()=> setToggleList(true)}>vlivk</Button> */}
     </>
   );
 }
