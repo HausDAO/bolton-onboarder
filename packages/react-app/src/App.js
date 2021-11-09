@@ -133,7 +133,9 @@ function SafeList({ provider }) {
         );
         const leaderBoardSorted = Object.keys(txList)
         .map((key) => ({ from: key, amount: txList[key] }))
-        .sort((a, b) => (a.amount < b.amount ? 0 : -1))
+        .sort((a, b) => {
+          return parseInt(b.amount.sub(a.amount).toString());
+          })
         .map((tx) => ({
           from: tx.from,
           amount: utils.formatEther(tx.amount.toString()),
@@ -154,16 +156,16 @@ function SafeList({ provider }) {
         );
 
         setSafeTxInfo(ethWethIn.filter((tx) => tx.from === account));
-        console.log("ethWethIn", ethWethIn);
+        // console.log("ethWethIn", ethWethIn);
         let total = 0;
         ethWethIn
           .filter((tx) => tx.from === account)
           .forEach((bal) => {
             total += parseFloat(utils.formatEther(bal.value));
           });
-        console.log("total", total);
-        console.log("bal?.balance", bal?.balance);
-        console.log("tokenBal?.balance", tokenBal?.balance);
+        // console.log("total", total);
+        // console.log("bal?.balance", bal?.balance);
+        // console.log("tokenBal?.balance", tokenBal?.balance);
         setBoban(
           (total /
             utils.formatEther(
@@ -239,7 +241,7 @@ function SafeList({ provider }) {
         <TabList ml={20} mr={20}>
           <Tab
             color={"#E5E5E5"}
-            _selected={{ color: "white", bg: config.mainColor }}
+            _selected={{ color: "white", borderColor: config.mainColor, borderWidth:"thin" }}
           >
             Your Contributions
           </Tab>
