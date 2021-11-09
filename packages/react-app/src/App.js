@@ -17,6 +17,11 @@ import {
   Button,
   Link,
   useToast,
+  Tabs,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
@@ -25,8 +30,8 @@ import { fetchSafeBalances, fetchSafeIncomingTxs } from "./utils/requests";
 const config = {
   network: "arbitrum", // set network this will be using mainnet/xdai
   logo: logo, // change the logo here
-  projectName: 'McArbi NFT',
-  mainColor: '#1d86cc',
+  projectName: "McArbi NFT",
+  mainColor: "#1d86cc",
   launch: "2021-11-09 16:00 ", // end date of the yeet
   goal: 10, // goal of the yeet
   gnosisSafe: "0xc4AbE253068AFD6B71F0a01b19256eeeeFcF9551",
@@ -49,10 +54,10 @@ function CopyToast({ toCopy }) {
   const toast = useToast();
   return (
     <IconButton
-      aria-label='Copy Gnosis safe address to clipboard.'
+      aria-label="Copy Gnosis safe address to clipboard."
       icon={<CopyIcon />}
       fontSize={{ base: "lg", lg: "2xl" }}
-      background='transparent'
+      background="transparent"
       color={config.mainColor}
       _hover={{ background: "transparent" }}
       onClick={() => {
@@ -75,6 +80,7 @@ function SafeList({ provider }) {
   const [safeTxInfo, setSafeTxInfo] = useState(null);
   const [, setSafeTxInfoAll] = useState(null);
   const [safeBalances, setSafeBalances] = useState(null);
+  const [leaderBoard, setLeaderboard] = useState(null);
   const [boban, setBoban] = useState(null);
   const [goal] = useState(config.goal);
   // const [network, setNetwork] = useState(null);
@@ -112,16 +118,31 @@ function SafeList({ provider }) {
         // console.log(safeTx);
 
         // weth or eth
-        const ethWethIn = safeTx?.results.filter(
+        let ethWethIn = safeTx?.results.filter(
           (tx) =>
-            // tx.from === account &&
             tx.tokenAddress === null ||
             tx.tokenAddress.toLowerCase() === config.token.toLowerCase()
         );
-        setSafeTxInfoAll(ethWethIn);
+
+        let txList = {};
+        ethWethIn.map(
+          (tx, idx) =>
+            (txList[tx.from] = BigNumber.from(ethWethIn[idx].value || "0").add(
+              BigNumber.from(txList[tx.from] || "0")
+            ))
+        );
+        setLeaderboard(
+          Object.keys(txList)
+            .map((key) => ({ from: key, amount: txList[key] }))
+            .sort((a, b) => (a.amount < b.amount ? 0 : -1))
+            .map((tx) => ({
+              from: tx.from,
+              amount: utils.formatEther(tx.amount.toString()),
+            }))
+        );
 
         setSafeTxInfo(ethWethIn.filter((tx) => tx.from === account));
-        console.log('ethWethIn, toggleList', ethWethIn, toggleList);
+        console.log("ethWethIn, toggleList", ethWethIn, toggleList);
         let total = 0;
         ethWethIn
           .filter((tx) => tx.from === account)
@@ -152,17 +173,17 @@ function SafeList({ provider }) {
 
   return (
     <>
-      <Flex justifyContent='space-around'>
+      <Flex justifyContent="space-around">
         <Box ml={5} mr={5}>
-          <Text color='#E5E5E5' fontSize={{ base: "xl" }}>
+          <Text color="#E5E5E5" fontSize={{ base: "xl" }}>
             Min Goal
           </Text>
           <Text color={config.mainColor} fontSize={{ base: "2xl", lg: "5xl" }}>
             {goal} {config.tokenSymbol}
           </Text>
         </Box>
-        <Box ml={5} mr={5} w={"50%"} align='center'>
-          <Text color='#E5E5E5' fontSize={{ base: "xl" }}>
+        <Box ml={5} mr={5} w={"50%"} align="center">
+          <Text color="#E5E5E5" fontSize={{ base: "xl" }}>
             In Bank {(+safeBalances).toFixed(4) > goal && " (Goal reached)"}
           </Text>
           <Text color={config.mainColor} fontSize={{ base: "2xl", lg: "5xl" }}>
@@ -174,7 +195,7 @@ function SafeList({ provider }) {
           </Text>
         </Box>
         <Box ml={5} mr={5}>
-          <Text color='#E5E5E5' fontSize={{ base: "xl" }}>
+          <Text color="#E5E5E5" fontSize={{ base: "xl" }}>
             Your Power
           </Text>
           <Text color={config.mainColor} fontSize={{ base: "2xl", lg: "5xl" }}>
@@ -182,6 +203,7 @@ function SafeList({ provider }) {
           </Text>
         </Box>
       </Flex>
+
       {!account && (
         <Flex
           border={"solid"}
@@ -191,68 +213,131 @@ function SafeList({ provider }) {
           h={20}
           ml={20}
           mr={20}
-          justifyContent='center'
-          align='center'
+          justifyContent="center"
+          align="center"
         >
           <Box>
-            <Text fontSize='2xl' color='#E5E5E5'>
+            <Text fontSize="2xl" color="#E5E5E5">
               Connect Wallet
             </Text>
           </Box>
         </Flex>
       )}
-      <Flex
-        border={"solid"}
-        rounded={"sm"}
-        borderColor={"#272727"}
-        borderWidth={"thin"}
-        ml={20}
-        mr={20}
-      >
-        <Box w='100%'>
-          <Flex backgroundColor='#0C0C0C' flexDirection={"column"}>
-            {safeTxInfo &&
-              safeTxInfo?.map((tx, idx) => (
-                <Flex
-                  justifyContent='space-between'
-                  w='100%'
-                  align='center'
-                  h={20}
-                  key={idx}
-                >
-                  <Box ml={10}>
-                    <Text fontSize={"lg"} color={"#E5E5E5"}>
-                      {idx + 1 + ""}
-                    </Text>
-                  </Box>
-                  <Box ml={10} key={idx}>
-                    <Text
-                      fontSize={"lg"}
-                      color={"#E5E5E5"}
-                    >{`${utils.formatEther(tx.value)} ${
-                      !tx.tokenAddress
-                        ? `${config.tokenSymbol}`
-                        : `w${config.tokenSymbol}`
-                    }`}</Text>
-                  </Box>
-                  <Box ml={10}>
-                    <Text fontSize={"lg"} color={"#E5E5E5"}>
-                      {new Date(tx.executionDate).toLocaleString()}
-                    </Text>
-                  </Box>
-                  <Box m={10}>
-                    <Text fontSize={"lg"} color={config.mainColor}>
-                      {tx.transactionHash.substring(0, 6) +
-                        "..." +
-                        tx.transactionHash.substring(60)}
-                      <CopyToast toCopy={tx.transactionHash} />
-                    </Text>
+      <Tabs>
+        <TabList ml={20} mr={20}>
+          <Tab
+            color={"#E5E5E5"}
+            _selected={{ color: "white", bg: config.mainColor }}
+          >
+            Your Contributions
+          </Tab>
+          <Tab
+            color={"#E5E5E5"}
+            _selected={{ color: "white", bg: config.mainColor }}
+          >
+            Leaderboard
+          </Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <Flex
+              border={"solid"}
+              rounded={"sm"}
+              borderColor={"#272727"}
+              borderWidth={"thin"}
+              ml={20}
+              mr={20}
+            >
+              <Box w="100%">
+                <Flex backgroundColor="#0C0C0C" flexDirection={"column"}>
+                  {safeTxInfo &&
+                    safeTxInfo?.map((tx, idx) => (
+                      <Flex
+                        justifyContent="space-between"
+                        w="100%"
+                        align="center"
+                        h={20}
+                        key={idx}
+                      >
+                        <Box ml={10}>
+                          <Text fontSize={"lg"} color={"#E5E5E5"}>
+                            {idx + 1 + ""}
+                          </Text>
+                        </Box>
+                        <Box ml={10} key={idx}>
+                          <Text
+                            fontSize={"lg"}
+                            color={"#E5E5E5"}
+                          >{`${utils.formatEther(tx.value)} ${
+                            !tx.tokenAddress
+                              ? `${config.tokenSymbol}`
+                              : `w${config.tokenSymbol}`
+                          }`}</Text>
+                        </Box>
+                        <Box ml={10}>
+                          <Text fontSize={"lg"} color={"#E5E5E5"}>
+                            {new Date(tx.executionDate).toLocaleString()}
+                          </Text>
+                        </Box>
+                        <Box m={10}>
+                          <Text fontSize={"lg"} color={config.mainColor}>
+                            {tx.transactionHash.substring(0, 6) +
+                              "..." +
+                              tx.transactionHash.substring(60)}
+                            <CopyToast toCopy={tx.transactionHash} />
+                          </Text>
+                        </Box>
+                      </Flex>
+                    ))}
+                </Flex>
+              </Box>
+            </Flex>
+          </TabPanel>
+          <TabPanel>
+            <Flex
+              border={"solid"}
+              rounded={"sm"}
+              borderColor={"#272727"}
+              borderWidth={"thin"}
+              ml={20}
+              mr={20}
+            >
+              <Box w="100%">
+                <Flex backgroundColor="#0C0C0C" flexDirection={"column"}>
+                  <Box>
+                    {leaderBoard &&
+                      leaderBoard.map((contributor, idx) => (
+                        <Flex
+                          justifyContent="space-between"
+                          w="100%"
+                          align="center"
+                          h={20}
+                          key={idx}
+                        >
+                          <Box ml={10}>
+                            <Text fontSize={"lg"} color={"#E5E5E5"}>
+                              {idx + 1 + ""}
+                            </Text>
+                          </Box>
+                          <Box ml={10}>
+                            <Text fontSize={"lg"} color={"#E5E5E5"}>
+                              {contributor.from}
+                            </Text>
+                          </Box>
+                          <Box m={10}>
+                            <Text fontSize={"lg"} color={"#E5E5E5"}>
+                              {contributor.amount}
+                            </Text>
+                          </Box>
+                        </Flex>
+                      ))}
                   </Box>
                 </Flex>
-              ))}
-          </Flex>
-        </Box>
-      </Flex>
+              </Box>
+            </Flex>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
       {/* <Button onClick={()=> setToggleList(true)}>vlivk</Button> */}
     </>
   );
@@ -296,9 +381,9 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 
   return (
     <Button
-      size='xs'
-      fontSize='16px'
-      fontWeight='normal'
+      size="xs"
+      fontSize="16px"
+      fontWeight="normal"
       margin={5}
       padding={4}
       backgroundColor={config.mainColor}
@@ -365,11 +450,11 @@ function App() {
         <Text
           color={config.mainColor}
           fontSize={{ base: "3xl", lg: "5xl" }}
-          lineHeight='1'
+          lineHeight="1"
         >
           {timeLeft[interval] || "0"}
         </Text>
-        <Text color={"#E5E5E5"} fontSize='sm'>
+        <Text color={"#E5E5E5"} fontSize="sm">
           {interval}
         </Text>
       </VStack>
@@ -378,16 +463,16 @@ function App() {
 
   return (
     <ChakraProvider resetCSS>
-      <Box backgroundColor='#0C0C0C' minH='100vh'>
+      <Box backgroundColor="#0C0C0C" minH="100vh">
         <Stack spacing={2}>
           <Stack spacing={2}>
-            <Flex justifyContent='space-between' alignItems='center' p={0}>
+            <Flex justifyContent="space-between" alignItems="center" p={0}>
               <ArrowForwardIcon p={0} />
               <Flex
-                justifyContent='flex-end'
-                alignItems='center'
+                justifyContent="flex-end"
+                alignItems="center"
                 p={0}
-                w='30%'
+                w="30%"
               />
               <WalletButton
                 provider={provider}
@@ -397,11 +482,15 @@ function App() {
             </Flex>
             <Flex
               direction={{ base: "column", lg: "row" }}
-              alignItems='center'
-              justifyContent='center'
+              alignItems="center"
+              justifyContent="center"
             >
-              <Avatar size='2xl' backgroundColor='#0C0C0C' src={config.logo} />
-              <Flex color={config.mainColor} alignItems='center' wrap={{ base: "wrap", lg: "nowrap" }}>
+              <Avatar size="2xl" backgroundColor="#0C0C0C" src={config.logo} />
+              <Flex
+                color={config.mainColor}
+                alignItems="center"
+                wrap={{ base: "wrap", lg: "nowrap" }}
+              >
                 {timerComponents.length ? (
                   timerComponents
                 ) : (
@@ -410,19 +499,19 @@ function App() {
               </Flex>
             </Flex>
             <Box
-              justifyContent='center'
+              justifyContent="center"
               paddingX={{ base: 4, lg: 20 }}
               paddingBottom={8}
             >
-              <Text paddingBottom={2} align='center' color={"#E5E5E5"}>
+              <Text paddingBottom={2} align="center" color={"#E5E5E5"}>
                 Yeet ({config.network}) funds to:{" "}
               </Text>
               <Flex
-                direction='row'
-                alignItems='center'
-                justifyContent='center'
-                rounded='16px'
-                backgroundColor='#0C0C0C'
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                rounded="16px"
+                backgroundColor="#0C0C0C"
                 border={"solid"}
                 borderColor={config.mainColor}
                 borderWidth={"thin"}
@@ -430,16 +519,16 @@ function App() {
               >
                 {timerComponents.length ? (
                   <Flex
-                    alignItems='center'
-                    justifyContent='center'
+                    alignItems="center"
+                    justifyContent="center"
                     wrap={{ base: "wrap", lg: "nowrap" }}
-                    maxWidth='100%'
+                    maxWidth="100%"
                   >
                     <Text
                       fontSize={{ base: "lg", md: "2xl" }}
-                      align='center'
+                      align="center"
                       color={config.mainColor}
-                      width='100%'
+                      width="100%"
                     >
                       {config.gnosisSafe}
                     </Text>
@@ -461,12 +550,12 @@ function App() {
             >
               <Text>
                 <Link href={config.website} isExternal>
-                  More about {config.projectName} <ExternalLinkIcon mx='2px' />
+                  More about {config.projectName} <ExternalLinkIcon mx="2px" />
                 </Link>
               </Text>
               <Text>
                 <Link href={"https://daohaus.club/"} isExternal>
-                  Bolt on for DAOhaus <ExternalLinkIcon mx='2px' />
+                  Bolt on for DAOhaus <ExternalLinkIcon mx="2px" />
                 </Link>
               </Text>
             </HStack>
