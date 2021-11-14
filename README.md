@@ -1,12 +1,15 @@
 ## YEET DAO
 
-Headless Gnosis safe Yeeter
+Interface for a headless Gnosis safe Yeeter
 
 ## to update config
 
 in /package/react-app/App.js
 
 update the config object with what you want
+
+Example:
+Contributors yeet in and when time is up and goal is met, deploy a daohaus dao with all depositors as share holders representing their deposit. If Goal is not met by the deadline send all the funds back.
 
 ```
 const config = {
