@@ -35,7 +35,7 @@ const config = {
   launch: 1678037791, // end date of the yeet (unix epoch)
   goal: 20, // goal of the yeet
   gnosisSafe: "0x1c5Ef6Af0626000c9923b93Ce20cF8FDA97E0c61",
-  // nativeToken: true,  // not used
+  nativeToken: true,  // not used
   token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // token yeeting in WETH
   tokenSymbol: "Ξ", // symbol to dsiplay
   website: "https://brood.raidguild.org/", // information site
