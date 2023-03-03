@@ -2,7 +2,7 @@ import { utils, BigNumber } from "ethers";
 
 import React, { useEffect, useState } from "react";
 
-import logo from "./arbichili.png";
+import logo from "./broodlogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import {
   ChakraProvider,
@@ -28,18 +28,18 @@ import { ArrowForwardIcon, CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { fetchSafeBalances, fetchSafeIncomingTxs } from "./utils/requests";
 
 const config = {
-  network: "arbitrum", // set network this will be using mainnet/xdai
+  network: "mainnet", // set network this will be using mainnet/xdai
   logo: logo, // change the logo here
-  projectName: "McArbi NFT",
-  mainColor: "#1d86cc",
-  launch: 1636498808, // end date of the yeet (unix epoch)
-  goal: 10, // goal of the yeet
+  projectName: "RaidBrood",
+  mainColor: "#B66AD6",
+  launch: 1678037791, // end date of the yeet (unix epoch)
+  goal: 20, // goal of the yeet
   gnosisSafe: "0xc4AbE253068AFD6B71F0a01b19256eeeeFcF9551",
   // nativeToken: true,  // not used
-  token: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // token yeeting in WETH
-  tokenSymbol: "aΞ", // symbol to dsiplay
-  website: "https://hackmd.io/@Dekan/By7a16Mwt", // information site
-  showLeaderboard: false, // show the leaderboad or not
+  token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // token yeeting in WETH
+  tokenSymbol: "Ξ", // symbol to dsiplay
+  website: "https://brood.raidguild.org/", // information site
+  showLeaderboard: true, // show the leaderboad or not
 };
 
 // const addresses = {
@@ -213,7 +213,7 @@ function SafeList({ provider }) {
         </Box>
         <Box ml={5} mr={5}>
           <Text color="#E5E5E5" fontSize={{ base: "xl" }}>
-            Your Power
+            Brood Power
           </Text>
           <Text color={config.mainColor} fontSize={{ base: "2xl", lg: "5xl" }}>
             {boban ? boban.toFixed(2) : 0}
